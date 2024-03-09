@@ -1,6 +1,5 @@
 package ru.dponyashov.netsaver.impl;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -44,9 +43,9 @@ public class NetSaverImpl implements NetSaver {
     public NewNet load() {
         try {
             String jsonString = Files.readString(Paths.get(FILE_NAME));
-            NetForSave savedNet = new NetForSave();
+            NetForSave loadNet = new NetForSave();
             AppLogger.setLog(String.format("Прочитали %s", LocalTime.now()));
-            return savedNet.getNet(jsonString);
+            return loadNet.getNet(jsonString);
         } catch (IOException e) {
             AppLogger.setLog(String.format("Ошибка чтения файла %s", e.getMessage()));
         }
@@ -64,15 +63,14 @@ public class NetSaverImpl implements NetSaver {
             Layer layer = ((NewNetImpl)source).getInputLayer();
             while(layer != null){
                 if(layer.getClass().getSimpleName().equals("OutLayer")){
+                    outLayer = layer;
                     break;
                 }
                 innerList.add(layer);
                 layer = ((AbstLayer)layer).getNextLayer();
             }
-            outLayer = layer;
             innerLayers = innerList.toArray(Layer[]::new);
         }
-        @JsonIgnore
         public NewNet getNet(String jsonString){
             JSONObject jsonNet = new JSONObject(jsonString);
 
